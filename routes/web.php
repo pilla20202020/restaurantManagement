@@ -91,6 +91,7 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::resource('customer', CustomerController::class);
     Route::resource('foodmenu', FoodMenuController::class);
     Route::resource('order', OrderController::class);
+    Route::put('orders/{order}/payment', [OrderController::class, 'updatePayment'])->name('order.updatePayment');
 
     // Page Management
     Route::post('bulk-delete-pages', [PageController::class, 'bulkDelete'])->name('pages.bulkDelete');

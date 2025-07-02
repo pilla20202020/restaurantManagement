@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('table_id')->constrained('tables')->cascadeOnDelete();
-            $table->foreignId('customer_id')->constrained('customers')->cascadeOnDelete();
-            $table->enum('payment_type',['cash','credit'])->default('cash')->nullable();
+            $table->foreignId('customer_id')->nullable()->constrained('customers')->cascadeOnDelete();
+            $table->enum('payment_type',['cash','online'])->default('cash')->nullable();
+            $table->enum('status',['paid','unpaid','credit'])->default('unpaid')->nullable();
+            $table->decimal('credit_amount', 10, 2)->default(0.00)->nullable();
+            $table->decimal('paid_amount', 10, 2)->default(0.00)->nullable();
             $table->decimal('total_amount', 10, 2)->nullable();
             $table->timestamps();
         });

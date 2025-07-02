@@ -13,16 +13,14 @@ class OrderService {
     public function listOrders() {
         return $this->repo->all();
     }
-    public function createOrder(array $data, array $menuIds) {
-        return DB::transaction(function() use ($data, $menuIds) {
-            // Create order record
-            $order = $this->repo->create([
-                'table_id' => $data['table_id'],
-                'customer_id' => $data['customer_id'],
-                'credit_amount' => $data['credit_amount'] ?? 0,
-            ]);
-            // Attach menu items (many-to-many)
-            $order->menus()->attach($menuIds);
+    public function createOrder(array $orderData, array $items)
+    {
+        return DB::transaction(function () use ($orderData, $items) {
+            $order = $this->repo->create($orderData);
+            foreach ($items as $item) {
+                $this->repo->createDetail($order->id, $item);
+            }
+
             return $order;
         });
     }

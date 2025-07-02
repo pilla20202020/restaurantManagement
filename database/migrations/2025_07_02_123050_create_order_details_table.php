@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->foreignId('food_menu_id')->constrained()->cascadeOnDelete();
             $table->integer('quantity')->default(1);
+            $table->decimal('rate', 10, 2)->nullable();
             $table->decimal('amount', 10, 2)->nullable();
             $table->timestamps();
         });

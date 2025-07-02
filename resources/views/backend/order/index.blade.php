@@ -34,14 +34,21 @@
                                 <table id="alternative-page-datatable" class="table dt-responsive nowrap w-100">
                                     <thead>
                                         <tr>
-                                            <th width="5%">S.N</th>
-                                            <th width="25%">Name</th>
-                                            <th width="25%">Price</th>
-                                            <th width="15%" class="text-right">Actions</th>
+                                            <th>Order #</th>
+                                            <th>Customer</th>
+                                            <th>Table</th>
+                                            <th>Items</th>
+                                            <th>Payment</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Ordered At</th>
+                                            <th class="text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @each('backend.order.partials.table', $orders, 'order')
+                                        @foreach ($orders as $order)
+                                            @include('backend.order.partials.table', ['order' => $order, 'customers' => $customers])
+                                        @endforeach
                                     </tbody>
                                 </table>
 
@@ -64,6 +71,77 @@
             document.getElementById('deleteForm').action = '{{ route('order.destroy', ':id') }}'.replace(':id', orderId);
             // Show the modal
             $('#deleteModal').modal('show');
+        }
+
+
+        function openViewOrderModal(orderId) {
+            const url = "{{ route('order.show', ':id') }}".replace(':id', orderId);
+
+            // Show loading state
+            document.getElementById('viewOrderContent').innerHTML = '<div class="text-center text-muted">Loading...</div>';
+            $('#viewOrderModal').modal('show');
+
+            fetch(url)
+                .then(res => res.text())
+                .then(html => {
+                    document.getElementById('viewOrderContent').innerHTML = html;
+                })
+                .catch(err => {
+                    document.getElementById('viewOrderContent').innerHTML = '<div class="text-danger">Failed to load order.</div>';
+                });
+        }
+
+
+        function openPaymentStatusModal(orderId, totalAmount, currentStatus, customerId, formAction, currentPaymentType) {
+            const modal = new bootstrap.Modal(document.getElementById('paymentStatusModal'));
+
+            // Set form action
+            document.getElementById('paymentStatusForm').action = formAction;
+
+            // Set total to hidden field
+            document.getElementById('payment_total_amount').value = totalAmount;
+
+            // Set dropdown value
+            document.getElementById('payment_status').value = currentStatus;
+
+            document.getElementById('payment_type').value = currentPaymentType || 'cash';
+
+            // Pre-fill customer
+            if (customerId) {
+                document.getElementById('payment_customer_id').value = customerId;
+            }
+
+            // Trigger logic for customer visibility
+            toggleCustomerField();
+
+            // Set paid amount if paid
+            if (currentStatus === 'paid') {
+                document.getElementById('paid_amount').value = totalAmount;
+            } else {
+                document.getElementById('paid_amount').value = '';
+            }
+
+            modal.show();
+        }
+
+        function toggleCustomerField() {
+            const status = document.getElementById('payment_status').value;
+            const customerWrapper = document.getElementById('customerDropdownWrapper');
+            const customerSelect = document.getElementById('payment_customer_id');
+            const paidAmount = document.getElementById('paid_amount');
+            const total = parseFloat(document.getElementById('payment_total_amount').value);
+
+            if (status === 'credit') {
+                customerWrapper.style.display = 'block';
+                customerSelect.required = true;
+                paidAmount.readOnly = false;
+                paidAmount.placeholder = "Enter paid amount";
+            } else {
+                customerWrapper.style.display = 'none';
+                customerSelect.required = false;
+                paidAmount.value = total;
+                paidAmount.readOnly = true;
+            }
         }
     </script>
 
