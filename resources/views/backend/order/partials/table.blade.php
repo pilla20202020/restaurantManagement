@@ -31,7 +31,7 @@
             <i class="fas fa-eye"></i>
         </button>
 
-        @if($order->status !== 'paid')
+        @if($order->status == 'unpaid')
             <button class="btn btn-flat btn-info btn-xs" title="Update Payment"
                 onclick="openPaymentStatusModal(
                     {{ $order->id }},

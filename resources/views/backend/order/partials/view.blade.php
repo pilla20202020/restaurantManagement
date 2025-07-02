@@ -11,18 +11,26 @@
                 <strong>Table:</strong> {{ $order->table->name ?? 'N/A' }}
             </div>
         </div>
+        <div class="mb-3 row">
 
-        <div class="mb-3">
-            <strong>Status:</strong>
-            @if($order->status == 'paid')
-                <span class="badge rounded-pill bg-success p-2">Paid</span>
-            @elseif($order->status == 'unpaid')
-                <span class="badge rounded-pill bg-warning text-dark p-2">Unpaid</span>
-            @elseif($order->status == 'credit')
-                <span class="badge rounded-pill bg-danger p-2">Credit</span>
-            @else
-                <span class="badge rounded-pill bg-secondary">Unknown</span>
-            @endif
+            <div class="col-md-6 mb-3">
+                <strong>Status:</strong>
+                @if($order->status == 'paid')
+                    <span class="badge rounded-pill bg-success p-2">Paid</span>
+                @elseif($order->status == 'unpaid')
+                    <span class="badge rounded-pill bg-warning text-dark p-2">Unpaid</span>
+                @elseif($order->status == 'credit')
+                    <span class="badge rounded-pill bg-danger p-2">Credit</span>
+                @else
+                    <span class="badge rounded-pill bg-secondary">Unknown</span>
+                @endif
+            </div>
+
+            <div class="col-md-6">
+                @if($order->status != 'unpaid')
+                    <strong>Total Paid Amount:</strong>Rs {{ $order->paid_amount ?? 'N/A' }}
+                @endif
+            </div>
         </div>
 
         <hr>
@@ -58,7 +66,17 @@
                 <strong>Order Date:</strong> {{ $order->created_at->format('Y-m-d H:i') }}
             </div>
             <div>
-                <strong>Total:</strong> <span class="fs-5 text-primary">{{ number_format($order->total_amount, 2) }}</span>
+                <strong>Total:</strong>
+                <span class="fs-5 text-primary">{{ number_format($order->total_amount, 2) }}</span>
+
+                @if($order->status === 'credit')
+                    @php
+                        $paid = $order->paid_amount ?? 0;
+                        $remaining = $order->total_amount - $paid;
+                    @endphp
+                    <br>
+                    <small class="text-danger">Remaining: {{ number_format($remaining, 2) }}</small>
+                @endif
             </div>
         </div>
     </div>
